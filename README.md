@@ -1,4 +1,4 @@
-# 핐사관리시스템 (Academic Management System) · B3
+# 학사관리시스템 (Academic Management System) · B3
 
 대학 강의 관리 및 수강신청을 위한 **웹 애플리케이션**입니다.
 B3팀의 «학사관리시스템» 기획서를 바탕으로, AI 도구(Claude)를 활용해 제작했습니다.
