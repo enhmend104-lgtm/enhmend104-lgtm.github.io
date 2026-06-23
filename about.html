@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>자기소개 · 학사관리시스템 B3</title>
-<meta name="description" content="자기소개 및 이력 페이지" />
+<meta name="description" content="앵흐맨드 자기소개 및 이력 페이지" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,7 +16,6 @@
     --brand:#1f6b4a; --brand-dark:#154e36; --brand-tint:#e4f0ea;
     --line:#dde5e1; --line-strong:#c8d3cd;
     --shadow:0 1px 2px rgba(20,40,32,.06),0 8px 24px rgba(20,40,32,.06);
-    --shadow-lg:0 12px 40px rgba(20,40,32,.16);
     --mono:'JetBrains Mono',ui-monospace,monospace;
     --sans:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   }
@@ -24,8 +23,6 @@
   body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6}
   .mono{font-family:var(--mono)}
   a{color:inherit}
-
-  /* top bar */
   .topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;height:58px;padding:0 22px;
     background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   .topbar .home{display:flex;align-items:center;gap:10px;font-weight:700;text-decoration:none;color:var(--ink);font-size:15px;letter-spacing:-.01em}
@@ -33,14 +30,12 @@
   .topbar .spacer{flex:1}
   .topbar .to-app{text-decoration:none;font-size:13.5px;font-weight:600;color:#fff;background:var(--brand);padding:9px 15px;border-radius:9px;transition:background .15s}
   .topbar .to-app:hover{background:var(--brand-dark)}
-
-  /* hero */
   .hero{background:radial-gradient(130% 130% at 20% 0%,#2a7d59 0%,var(--brand) 42%,var(--brand-dark) 100%);color:#fff;padding:60px 24px 64px;text-align:center;position:relative;overflow:hidden}
   .hero::after{content:"";position:absolute;inset:0;background:
     repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 64px);pointer-events:none}
   .hero .inner{max-width:760px;margin:0 auto;position:relative}
   .avatar{width:104px;height:104px;border-radius:50%;margin:0 auto 20px;display:grid;place-items:center;
-  background:rgba(0,0,0,.4);border:2px solid rgba(255,255,255,.3);font-size:40px;font-weight:800;color:#fff;letter-spacing:-.02em}
+  background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.5);font-size:40px;font-weight:800;color:#fff;letter-spacing:-.02em}
   .hero h1{margin:0;font-size:38px;font-weight:800;letter-spacing:-.03em}
   .hero .role{margin:10px 0 0;font-size:16px;opacity:.92;font-weight:500}
   .hero .tagline{margin:18px auto 0;max-width:560px;font-size:15.5px;opacity:.9;line-height:1.65}
@@ -48,14 +43,11 @@
   .hero .links a{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:#fff;font-size:13.5px;font-weight:600;
     background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);padding:9px 15px;border-radius:999px;transition:background .15s}
   .hero .links a:hover{background:rgba(255,255,255,.24)}
-
-  /* content */
   .wrap{max-width:760px;margin:-34px auto 0;padding:0 22px 70px;position:relative}
   .section{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:28px 30px;margin-bottom:18px}
   .section h2{margin:0 0 4px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
   .section .sub{margin:0 0 18px;font-size:13px;color:var(--faint)}
   .about-text{font-size:15.5px;color:var(--ink);line-height:1.8;margin:6px 0 0}
-
   .timeline{position:relative;padding-left:22px}
   .timeline::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
   .tl-item{position:relative;margin-bottom:20px}
@@ -64,10 +56,8 @@
   .tl-item .when{font-family:var(--mono);font-size:12px;color:var(--faint);font-weight:500}
   .tl-item .what{font-size:16px;font-weight:700;margin:3px 0 2px;letter-spacing:-.01em}
   .tl-item .where{font-size:14px;color:var(--muted)}
-
   .skill-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
   .skill{font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;background:var(--brand-tint);color:var(--brand-dark);border:1px solid #cfe5da}
-
   .proj{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
   .proj:first-of-type{padding-top:6px}
   .proj:last-child{border-bottom:none;padding-bottom:0}
@@ -78,19 +68,13 @@
   .proj .ptitle a:hover{background:#cfe5da}
   .proj .pdesc{font-size:14px;color:var(--muted);margin:0}
   .proj .ptech{margin-top:7px;font-family:var(--mono);font-size:11.5px;color:var(--faint)}
-
   .contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:6px}
   .contact-item{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
   .contact-item:hover{border-color:var(--brand);transform:translateY(-2px)}
   .contact-item .ci-ico{width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-size:17px;flex-shrink:0}
   .contact-item .ci-l{font-size:11.5px;color:var(--faint);font-weight:600}
   .contact-item .ci-v{font-size:13.5px;font-weight:600;word-break:break-all}
-
-  /* placeholder highlight — replace these */
-  .ph{background:#fff7e0;border-bottom:1px dashed #d9a93a;border-radius:3px;padding:0 2px}
-
   footer{text-align:center;color:var(--faint);font-size:12.5px;padding:20px}
-
   @media (max-width:600px){
     .hero{padding:48px 20px 56px}
     .hero h1{font-size:30px}
@@ -101,13 +85,6 @@
 </style>
 </head>
 <body>
-<!--
-  ┌─────────────────────────────────────────────────────────────┐
-  │  채워 넣을 곳: 아래에서 <span class="ph">…</span> 로          │
-  │  표시된 노란 부분을 본인 정보로 바꾸세요.                      │
-  │  (이름, 학번, 전공, 이메일, GitHub 주소, 소개글 등)            │
-  └─────────────────────────────────────────────────────────────┘
--->
 <div class="topbar">
   <a class="home" href="about.html"><span class="seal">KUK</span> 자기소개</a>
   <div class="spacer"></div>
@@ -116,14 +93,13 @@
 
 <header class="hero">
   <div class="inner">
-    <!-- 이니셜(이름 첫 글자)로 바꾸세요 -->
-    <div class="avatar"><span class="ph">E</span></div>
-    <h1><span class="ph">앵흐맨드</span></h1>
-    <p class="role">건국대학교 · <span class="ph">avatar</span> · 학번 <span class="ph mono">2024113760</span></p>
-    <p class="tagline"><span class="ph">한 줄 소개를 적어 주세요. 예: 사용자에게 도움이 되는 소프트웨어를 만드는 것을 좋아하는 학생입니다.</span></p>
+    <div class="avatar"><span>앵</span></div>
+    <h1>앵흐맨드</h1>
+    <p class="role">건국대학교 · 컴퓨터공학부 · 학번 <span class="mono">202413760</span></p>
+    <p class="tagline">프로그래밍과 문제 해결을 좋아하고, AI와 소프트웨어 개발에 관심이 많은 건국대학교 컴퓨터공학부 학생입니다.</p>
     <div class="links">
-      <a href="mailto:your-email@example.com">✉ <span class="ph">your-email@example.com</span></a>
-      <a href="enhmend104-lgtm.github.io" target="_blank" rel="noopener">⌥ GitHub</a>
+      <a href="mailto:enhmend104@gmail.com">✉ enhmend104@gmail.com</a>
+      <a href="https://github.com/enhmend104-lgtm" target="_blank" rel="noopener">⌥ GitHub</a>
     </div>
   </div>
 </header>
@@ -133,8 +109,7 @@
   <section class="section">
     <h2>자기소개</h2>
     <p class="sub">About me</p>
-    <p class="about-text"><span class="ph">안녕하세요, 저는 한국에서 컴퓨터공학을 공부하고 있는 학생입니다. 저는 프로그래밍과 문제 해결에 큰 흥미를 가지고 있으며, 특히 AI와 소프트웨어 개발에 관심이 많습니다. 새로운 기술을 배우고 이를 활용해 실용적인 프로젝트를 만드는 것을 좋아합니다. 앞으로 더 다양한 경험을 통해 성장하는 개발자가 되고 싶습니다.
-</span></p>
+    <p class="about-text">안녕하세요, 저는 한국에서 컴퓨터공학을 공부하고 있는 학생입니다. 저는 프로그래밍과 문제 해결에 큰 흥미를 가지고 있으며, 특히 AI와 소프트웨어 개발에 관심이 많습니다. 새로운 기술을 배우고 이를 활용해 실용적인 프로젝트를 만드는 것을 좋아합니다. 앞으로 더 다양한 경험을 통해 성장하는 개발자가 되고 싶습니다.</p>
   </section>
 
   <section class="section">
@@ -142,14 +117,9 @@
     <p class="sub">Education</p>
     <div class="timeline">
       <div class="tl-item">
-        <div class="when"><span class="ph">2024.03 ~ 현재</span></div>
-        <div class="what">건국대학교 <span class="ph">avatar</span></div>
-        <div class="where"><span class="ph">학사 과정 재학 중</span></div>
-      </div>
-      <div class="tl-item">
-        <div class="when"><span class="ph">~ 2022.06</span></div>
-        <div class="what"><span class="ph">○○고등학교 졸업</span></div>
-        <div class="where"><span class="ph">필요 없으면 이 항목을 지우세요</span></div>
+        <div class="when"><span class="mono">2024.03 ~ 현재</span></div>
+        <div class="what">건국대학교 컴퓨터공학부</div>
+        <div class="where">학사 과정 재학 중</div>
       </div>
     </div>
   </section>
@@ -158,9 +128,9 @@
     <h2>기술 스택</h2>
     <p class="sub">Skills</p>
     <div class="skill-tags">
-      <!-- 본인이 다룰 수 있는/배우고 있는 기술로 바꾸세요 -->
       <span class="skill">C</span>
       <span class="skill">Python</span>
+      <span class="skill">JavaScript</span>
       <span class="skill">HTML / CSS</span>
       <span class="skill">Git</span>
     </div>
@@ -169,7 +139,6 @@
   <section class="section">
     <h2>프로젝트</h2>
     <p class="sub">Projects</p>
-
     <div class="proj">
       <div class="badge">📚</div>
       <div class="pbody">
@@ -178,7 +147,6 @@
         <div class="ptech">HTML · CSS · JavaScript · localStorage</div>
       </div>
     </div>
-    
   </section>
 
   <section class="section">
@@ -187,11 +155,11 @@
     <div class="contact-grid">
       <a class="contact-item" href="mailto:enhmend104@gmail.com">
         <div class="ci-ico">✉</div>
-        <div><div class="ci-l">Email</div><div class="ci-v ph">your-email@example.com</div></div>
+        <div><div class="ci-l">Email</div><div class="ci-v">enhmend104@gmail.com</div></div>
       </a>
-      <a class="contact-item" href="https://github.com/your-username" target="_blank" rel="noopener">
+      <a class="contact-item" href="https://github.com/enhmend104-lgtm" target="_blank" rel="noopener">
         <div class="ci-ico">⌥</div>
-        <div><div class="ci-l">GitHub</div><div class="ci-v ph">github.com/your-username</div></div>
+        <div><div class="ci-l">GitHub</div><div class="ci-v">github.com/enhmend104-lgtm</div></div>
       </a>
     </div>
   </section>
