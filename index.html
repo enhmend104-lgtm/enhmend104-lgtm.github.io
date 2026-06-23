@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>학사관리시스템 · B3</title>
+<meta name="description" content="대학 강의 관리 및 수강신청 웹 시스템 — B3팀 기획서 기반, AI 도구로 제작" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#eef2f0;
+    --surface:#ffffff;
+    --surface-2:#f6f8f7;
+    --ink:#16201d;
+    --muted:#5d6b66;
+    --faint:#8a958f;
+    --brand:#1f6b4a;
+    --brand-dark:#154e36;
+    --brand-tint:#e4f0ea;
+    --line:#dde5e1;
+    --line-strong:#c8d3cd;
+    --danger:#b23b32;
+    --danger-tint:#f7e7e5;
+    --warn:#b9761e;
+    --warn-tint:#f6ecdb;
+    --indigo:#3f51a8;
+    --indigo-tint:#e7e9f6;
+    --amber:#9a6a12;
+    --amber-tint:#f3e9d4;
+    --shadow:0 1px 2px rgba(20,40,32,.06),0 8px 24px rgba(20,40,32,.06);
+    --shadow-lg:0 12px 40px rgba(20,40,32,.16);
+    --radius:14px;
+    --radius-sm:9px;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+    font-size:15px;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input,select{font-family:inherit;font-size:14px}
+  .mono{font-family:var(--mono);font-variant-ligatures:none}
+
+  /* ---------- App shell ---------- */
+  .appbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;gap:16px;
+    padding:0 22px;height:60px;
+    background:var(--brand);
+    color:#fff;
+    box-shadow:0 1px 0 rgba(0,0,0,.08);
+  }
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em;font-size:17px}
+  .seal{
+    width:30px;height:30px;border-radius:50%;
+    border:1.6px solid rgba(255,255,255,.85);
+    display:grid;place-items:center;
+    font-size:11px;font-weight:700;letter-spacing:.02em;
+    background:rgba(255,255,255,.08);
+  }
+  .appbar .spacer{flex:1}
+  .appbar a.about-link{
+    color:rgba(255,255,255,.92);text-decoration:none;font-size:13.5px;font-weight:600;
+    padding:7px 12px;border-radius:8px;transition:background .15s;
+  }
+  .appbar a.about-link:hover{background:rgba(255,255,255,.14)}
+  .user-chip{display:flex;align-items:center;gap:9px}
+  .user-chip .uname{font-weight:600;font-size:14px}
+  .user-chip .uid{font-size:12px;opacity:.8}
+  .role-badge{
+    font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;
+    background:rgba(255,255,255,.18);color:#fff;letter-spacing:.01em;
+  }
+  .btn-logout{
+    background:rgba(255,255,255,.0);color:#fff;border:1px solid rgba(255,255,255,.45);
+    padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;transition:background .15s;
+  }
+  .btn-logout:hover{background:rgba(255,255,255,.16)}
+
+  .layout{display:flex;min-height:calc(100vh - 60px);max-width:1280px;margin:0 auto}
+  .sidebar{
+    width:230px;flex-shrink:0;padding:22px 14px;
+    border-right:1px solid var(--line);
+  }
+  .side-label{font-size:11px;font-weight:700;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;padding:0 12px 8px}
+  .nav-item{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:10px 12px;margin-bottom:3px;border:none;background:none;
+    border-radius:var(--radius-sm);color:var(--muted);font-size:14.5px;font-weight:600;
+    transition:background .14s,color .14s;
+  }
+  .nav-item .ico{width:18px;text-align:center;font-size:15px;opacity:.85}
+  .nav-item:hover{background:var(--surface-2);color:var(--ink)}
+  .nav-item.active{background:var(--brand-tint);color:var(--brand-dark)}
+  .nav-item.active .ico{opacity:1}
+
+  .main{flex:1;min-width:0;padding:30px 34px 60px}
+  .page-head{margin-bottom:22px}
+  .page-head h1{margin:0 0 4px;font-size:23px;font-weight:800;letter-spacing:-.02em}
+  .page-head p{margin:0;color:var(--muted);font-size:14px}
+
+  /* ---------- Cards / grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 17px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s;
+  }
+  .course-card{display:flex;flex-direction:column;gap:11px}
+  .course-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--line-strong)}
+  .cc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .cc-code{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--brand);background:var(--brand-tint);padding:3px 7px;border-radius:6px;display:inline-block}
+  .cc-title{font-size:16.5px;font-weight:700;margin:7px 0 0;letter-spacing:-.01em}
+  .cc-meta{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)}
+  .cc-meta .row{display:flex;align-items:center;gap:7px}
+  .cc-meta .row .k{color:var(--faint);width:54px;flex-shrink:0}
+  .cc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px;padding-top:12px;border-top:1px solid var(--line)}
+  .seats{font-size:12.5px;font-weight:600}
+  .seats .num{font-family:var(--mono)}
+  .seats.ok{color:var(--brand)}
+  .seats.warn{color:var(--warn)}
+  .seats.full{color:var(--danger)}
+  .credit-tag{font-size:12px;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:2px 8px;border-radius:999px}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    padding:9px 14px;border-radius:9px;font-size:13.5px;font-weight:600;transition:all .14s;white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--brand);color:var(--brand)}
+  .btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff}
+  .btn-danger{background:var(--surface);border-color:var(--danger);color:var(--danger)}
+  .btn-danger:hover{background:var(--danger);color:#fff}
+  .btn-sm{padding:7px 11px;font-size:12.5px}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;border-color:var(--line);color:var(--faint);background:var(--surface-2)}
+  .btn[disabled]:hover{border-color:var(--line);color:var(--faint)}
+
+  /* ---------- Toolbar (search/filter) ---------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+  .search-wrap{position:relative;flex:1;min-width:220px}
+  .search-wrap .mag{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:14px}
+  .search-wrap input{
+    width:100%;padding:11px 13px 11px 36px;border:1px solid var(--line-strong);border-radius:10px;
+    background:var(--surface);color:var(--ink);outline:none;transition:border-color .14s,box-shadow .14s;
+  }
+  .search-wrap input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+  select.filter{
+    padding:11px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);
+    color:var(--ink);outline:none;cursor:pointer;transition:border-color .14s;
+  }
+  select.filter:focus{border-color:var(--brand)}
+  .chk{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);user-select:none;cursor:pointer;padding:0 4px}
+  .chk input{width:16px;height:16px;accent-color:var(--brand)}
+
+  /* ---------- Table ---------- */
+  .table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  table.data{width:100%;border-collapse:collapse;font-size:14px}
+  table.data th{
+    text-align:left;padding:13px 16px;background:var(--surface-2);color:var(--muted);
+    font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid var(--line);
+  }
+  table.data td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+  table.data tr:last-child td{border-bottom:none}
+  table.data tr:hover td{background:var(--surface-2)}
+  .tbl-actions{display:flex;gap:7px;justify-content:flex-end}
+
+  /* ---------- Timetable ---------- */
+  .tt-summary{display:flex;gap:18px;margin-bottom:16px;flex-wrap:wrap}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);min-width:130px}
+  .stat .v{font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.02em}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:2px;font-weight:600}
+  .timetable{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  table.tt{width:100%;border-collapse:collapse;table-layout:fixed}
+  table.tt th{background:var(--surface-2);font-size:12.5px;font-weight:700;color:var(--muted);padding:12px 6px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+  table.tt th:last-child{border-right:none}
+  table.tt td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);height:62px;padding:3px;vertical-align:top;position:relative}
+  table.tt td:last-child{border-right:none}
+  table.tt tr:last-child td{border-bottom:none}
+  .tt-time{background:var(--surface-2);font-family:var(--mono);font-size:11px;color:var(--faint);text-align:center;width:74px;font-weight:500;line-height:1.35}
+  .tt-time .p{display:block;font-weight:700;color:var(--muted);font-size:11.5px;margin-bottom:2px}
+  .tt-block{
+    border-radius:7px;padding:6px 8px;height:100%;overflow:hidden;
+    border-left:3px solid var(--bc,var(--brand));
+  }
+  .tt-block .t{font-size:12.5px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+  .tt-block .r{font-size:10.5px;margin-top:2px;opacity:.85;font-family:var(--mono)}
+
+  /* ---------- Empty / banner ---------- */
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty .ico{font-size:34px;margin-bottom:10px;opacity:.5}
+  .empty h3{margin:0 0 6px;font-size:16px;color:var(--ink);font-weight:700}
+  .empty p{margin:0;font-size:14px}
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(16,26,22,.42);z-index:50;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .18s;backdrop-filter:blur(2px);
+  }
+  .modal-overlay.show{opacity:1;pointer-events:auto}
+  .modal{
+    background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);
+    width:100%;max-width:480px;max-height:88vh;overflow:auto;transform:translateY(8px);transition:transform .18s;
+  }
+  .modal-overlay.show .modal{transform:translateY(0)}
+  .modal-head{padding:20px 22px 0;display:flex;justify-content:space-between;align-items:flex-start}
+  .modal-head h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .modal-head .x{background:none;border:none;font-size:22px;color:var(--faint);line-height:1;padding:2px 6px}
+  .modal-head .x:hover{color:var(--ink)}
+  .modal-body{padding:18px 22px 22px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.01em}
+  .field input,.field select{
+    width:100%;padding:10px 12px;border:1px solid var(--line-strong);border-radius:9px;
+    background:var(--surface);color:var(--ink);outline:none;transition:border-color .14s,box-shadow .14s;
+  }
+  .field input:focus,.field select:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+  .field .hint{font-size:11.5px;color:var(--faint);margin-top:5px}
+  .field-row{display:flex;gap:12px}
+  .field-row .field{flex:1}
+  .slot-picker{display:flex;flex-direction:column;gap:8px}
+  .slot-row{display:flex;gap:8px;align-items:center}
+  .slot-row select{flex:1}
+  .slot-row .del{background:var(--danger-tint);border:none;color:var(--danger);width:34px;height:38px;border-radius:8px;font-size:16px;flex-shrink:0}
+  .modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+
+  .stud-list{list-style:none;margin:0;padding:0}
+  .stud-list li{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .stud-list li:last-child{border-bottom:none}
+  .stud-list .sid{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+  /* ---------- Login ---------- */
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:radial-gradient(120% 120% at 50% 0%,#2a7d59 0%,var(--brand) 38%,var(--brand-dark) 100%);}
+  .login-card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow-lg);width:100%;max-width:430px;overflow:hidden}
+  .login-hero{padding:30px 32px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  .login-hero .seal-lg{width:62px;height:62px;border-radius:50%;border:2px solid var(--brand);display:grid;place-items:center;margin:0 auto 14px;color:var(--brand);font-weight:800;font-size:13px;background:var(--brand-tint)}
+  .login-hero h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .login-hero p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+  .login-body{padding:24px 32px 28px}
+  .role-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:18px;background:var(--surface-2);padding:5px;border-radius:11px}
+  .role-tab{padding:9px 4px;border:none;background:none;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--muted);transition:all .14s}
+  .role-tab.active{background:var(--surface);color:var(--brand-dark);box-shadow:var(--shadow)}
+  .login-field{margin-bottom:13px}
+  .login-field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px}
+  .login-field input{width:100%;padding:12px 13px;border:1px solid var(--line-strong);border-radius:10px;outline:none;background:var(--surface);transition:border-color .14s,box-shadow .14s}
+  .login-field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+  .login-err{background:var(--danger-tint);color:var(--danger);font-size:13px;font-weight:600;padding:10px 13px;border-radius:9px;margin-bottom:13px;display:none}
+  .login-err.show{display:block}
+  .btn-login{width:100%;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;transition:background .14s}
+  .btn-login:hover{background:var(--brand-dark)}
+  .demo-box{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+  .demo-box .dl{font-size:11.5px;font-weight:700;color:var(--faint);letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+  .demo-accounts{display:flex;flex-direction:column;gap:6px}
+  .demo-acc{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;font-size:12.5px;transition:border-color .14s}
+  .demo-acc:hover{border-color:var(--brand)}
+  .demo-acc .da-info{display:flex;align-items:center;gap:8px}
+  .demo-acc .da-id{font-family:var(--mono);color:var(--muted)}
+  .demo-acc button{font-size:11.5px;padding:5px 10px;background:var(--surface);border:1px solid var(--line-strong);border-radius:7px;color:var(--brand);font-weight:700}
+  .demo-acc button:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+  /* ---------- Toast ---------- */
+  .toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .toast{
+    padding:12px 18px;border-radius:11px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);
+    display:flex;align-items:center;gap:9px;animation:rise .25s ease;max-width:90vw;
+  }
+  .toast.success{background:var(--brand);color:#fff}
+  .toast.error{background:var(--danger);color:#fff}
+  .toast.info{background:var(--ink);color:#fff}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  .footer-note{text-align:center;color:var(--faint);font-size:12px;padding:24px 20px 30px}
+  .footer-note .reset{background:none;border:none;color:var(--faint);text-decoration:underline;font-size:12px;padding:0 4px}
+  .footer-note .reset:hover{color:var(--danger)}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:820px){
+    .layout{flex-direction:column}
+    .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:12px 14px}
+    .side-label{display:none}
+    .nav-item{width:auto;margin-bottom:0;white-space:nowrap;padding:9px 13px}
+    .main{padding:22px 18px 50px}
+    .appbar{padding:0 16px;gap:10px}
+    .brand span.full{display:none}
+    .user-chip .uid{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+/* =====================================================================
+   학사관리시스템 (Academic Management System) — Web edition
+   B3팀 기획서 기반 · 정적(클라이언트) 구현 · 데이터는 브라우저에 저장
+   ===================================================================== */
+
+const STORE_KEY = 'ams_b3_db_v1';
+const SESSION_KEY = 'ams_b3_session_v1';
+
+/* ---- 시간표 교시 정의 (90분 블록) ---- */
+const PERIODS = [
+  {p:1, label:'1교시', start:'09:00', end:'10:30'},
+  {p:2, label:'2교시', start:'10:30', end:'12:00'},
+  {p:3, label:'3교시', start:'13:00', end:'14:30'},
+  {p:4, label:'4교시', start:'14:30', end:'16:00'},
+  {p:5, label:'5교시', start:'16:00', end:'17:30'},
+  {p:6, label:'6교시', start:'17:30', end:'19:00'},
+];
+const DAYS = ['월','화','수','목','금'];
+const MAX_CREDITS = 21;
+const BLOCK_COLORS = ['#1f6b4a','#3f51a8','#9a6a12','#b23b32','#2a7d8c','#7a3f9a','#c0631e','#356b2f'];
+
+/* ---- 초기(시드) 데이터 ---- */
+function seed(){
+  return {
+    accounts:[
+      {id:'202510970', name:'문주선',   role:'student',   password:'1234'},
+      {id:'202413760', name:'앵흐멘드', role:'student',   password:'1234'},
+      {id:'202112352', name:'최서진',   role:'student',   password:'1234'},
+      {id:'P0001',     name:'김민서',   role:'professor', password:'1234'},
+      {id:'P0002',     name:'이정훈',   role:'professor', password:'1234'},
+      {id:'admin',     name:'관리자',   role:'admin',     password:'admin'},
+    ],
+    rooms:[
+      {id:'공학관 201',   capacity:50},
+      {id:'공학관 305',   capacity:40},
+      {id:'신공학관 101', capacity:120},
+      {id:'경영관 401',   capacity:60},
+      {id:'인문관 207',   capacity:35},
+    ],
+    courses:[
+      {code:'CSE2003', title:'자료구조',       profId:'P0001', capacity:50, room:'공학관 201',   credits:3, slots:[{day:'월',p:1},{day:'수',p:1}]},
+      {code:'CSE3007', title:'알고리즘',       profId:'P0001', capacity:40, room:'공학관 305',   credits:3, slots:[{day:'화',p:2},{day:'목',p:2}]},
+      {code:'CSE2010', title:'운영체제',       profId:'P0002', capacity:60, room:'신공학관 101', credits:3, slots:[{day:'월',p:3},{day:'수',p:3}]},
+      {code:'GEN1001', title:'대학글쓰기',     profId:'P0002', capacity:35, room:'인문관 207',   credits:2, slots:[{day:'금',p:1}]},
+      {code:'BUS2200', title:'경영학원론',     profId:'P0001', capacity:60, room:'경영관 401',   credits:3, slots:[{day:'화',p:4},{day:'목',p:4}]},
+    ],
+    enrollments:[
+      {sid:'202510970', code:'CSE2003'},
+      {sid:'202510970', code:'CSE2010'},
+    ],
+  };
+}
+
+/* ---- 저장소 ---- */
+let DB = loadDB();
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  const s = seed();
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){}
+  return s;
+}
+function saveDB(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(DB)); }catch(e){} }
+function resetDB(){
+  if(!confirm('모든 데이터를 초기 상태로 되돌립니다. 계속할까요?')) return;
+  DB = seed(); saveDB();
+  localStorage.removeItem(SESSION_KEY);
+  session = null; state = {};
+  toast('데이터를 초기화했습니다.', 'info');
+  render();
+}
+
+/* ---- 세션 ---- */
+let session = (function(){
+  try{ return JSON.parse(localStorage.getItem(SESSION_KEY)) || null; }catch(e){ return null; }
+})();
+function setSession(userId){
+  session = {userId};
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+function clearSession(){ session = null; localStorage.removeItem(SESSION_KEY); }
+function currentUser(){ return session ? DB.accounts.find(a=>a.id===session.userId) : null; }
+
+/* ---- 화면 상태 ---- */
+let state = {};
+let loginRole = 'student';
+
+/* ---- 유틸 ---- */
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ROLE_KO = {student:'학생', professor:'교수', admin:'관리자'};
+function profName(pid){ const p = DB.accounts.find(a=>a.id===pid); return p?p.name:'미지정'; }
+function enrolledCount(code){ return DB.enrollments.filter(e=>e.code===code).length; }
+function colorForCode(code){ let h=0; for(const ch of code) h=(h*31+ch.charCodeAt(0))>>>0; return BLOCK_COLORS[h%BLOCK_COLORS.length]; }
+function slotText(slots){ return slots.map(s=>{ const pd=PERIODS.find(x=>x.p===s.p); return `${s.day} ${pd?pd.label:s.p+'교시'}`; }).join(', '); }
+function studentCourses(sid){ return DB.enrollments.filter(e=>e.sid===sid).map(e=>DB.courses.find(c=>c.code===e.code)).filter(Boolean); }
+function slotsOverlap(a,b){ for(const s1 of a) for(const s2 of b) if(s1.day===s2.day && s1.p===s2.p) return {day:s1.day,p:s1.p}; return null; }
+
+function toast(msg, kind='success'){
+  const wrap = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  const ico = kind==='success'?'✓':kind==='error'?'✕':'ℹ';
+  el.innerHTML = `<span>${ico}</span><span>${esc(msg)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2600);
+}
+
+/* =====================================================================
+   렌더링
+   ===================================================================== */
+function render(){
+  const user = currentUser();
+  if(!user){ renderLogin(); return; }
+  if(!state.view) state.view = defaultView(user.role);
+  renderApp(user);
+}
+function defaultView(role){
+  return role==='student' ? 'search' : role==='professor' ? 'myCourses' : 'allCourses';
+}
+
+/* ---------- 로그인 ---------- */
+function renderLogin(){
+  const demos = {
+    student:   {id:'202510970', label:'문주선 · 학생'},
+    professor: {id:'P0001',     label:'김민서 · 교수'},
+    admin:     {id:'admin',     label:'관리자'},
+  };
+  const root = document.getElementById('root');
+  root.innerHTML = `
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-hero">
+        <div class="seal-lg">KUK</div>
+        <h1>학사관리시스템</h1>
+        <p>대학 강의 관리 및 수강신청 · B3팀</p>
+      </div>
+      <div class="login-body">
+        <div class="role-tabs" id="roleTabs">
+          ${['student','professor','admin'].map(r=>`
+            <button class="role-tab ${r===loginRole?'active':''}" data-role="${r}">${ROLE_KO[r]}</button>`).join('')}
+        </div>
+        <div class="login-err" id="loginErr"></div>
+        <div class="login-field">
+          <label>${loginRole==='student'?'학번':'아이디 (사번)'}</label>
+          <input type="text" id="loginId" class="mono" placeholder="${loginRole==='student'?'202510970':'P0001'}" autocomplete="off" />
+        </div>
+        <div class="login-field">
+          <label>비밀번호</label>
+          <input type="password" id="loginPw" placeholder="••••" autocomplete="off" />
+        </div>
+        <button class="btn-login" id="btnLogin">로그인</button>
+        <div class="demo-box">
+          <div class="dl">데모 계정 (클릭하면 자동 입력)</div>
+          <div class="demo-accounts">
+            ${Object.entries(demos).map(([r,d])=>`
+              <div class="demo-acc">
+                <div class="da-info"><span class="role-badge" style="background:${roleBadgeBg(r)};color:${roleBadgeFg(r)}">${ROLE_KO[r]}</span>
+                  <span>${esc(d.label.split(' · ')[0])}</span>
+                  <span class="da-id">${esc(d.id)}</span></div>
+                <button data-fill-id="${d.id}" data-fill-pw="${r==='admin'?'admin':'1234'}" data-fill-role="${r}">사용</button>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('roleTabs').addEventListener('click', e=>{
+    const t = e.target.closest('.role-tab'); if(!t) return;
+    loginRole = t.dataset.role; renderLogin();
+  });
+  document.querySelectorAll('[data-fill-id]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      loginRole = b.dataset.fillRole; renderLogin();
+      document.getElementById('loginId').value = b.dataset.fillId;
+      document.getElementById('loginPw').value = b.dataset.fillPw;
+    });
+  });
+  document.getElementById('btnLogin').addEventListener('click', doLogin);
+  document.getElementById('loginPw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('loginId').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPw').focus(); });
+}
+function roleBadgeBg(r){ return r==='student'?'var(--brand-tint)':r==='professor'?'var(--indigo-tint)':'var(--amber-tint)'; }
+function roleBadgeFg(r){ return r==='student'?'var(--brand-dark)':r==='professor'?'var(--indigo)':'var(--amber)'; }
+
+function doLogin(){
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const err = document.getElementById('loginErr');
+  const acc = DB.accounts.find(a=>a.id===id);
+  if(!acc || acc.password!==pw){
+    err.textContent = '학번/아이디 또는 비밀번호가 올바르지 않습니다.';
+    err.classList.add('show'); return;
+  }
+  if(acc.role!==loginRole){
+    err.textContent = `이 계정은 '${ROLE_KO[acc.role]}' 계정입니다. 해당 탭에서 로그인해 주세요.`;
+    err.classList.add('show'); return;
+  }
+  setSession(acc.id);
+  state = {view: defaultView(acc.role)};
+  toast(`${acc.name}님, 환영합니다.`, 'success');
+  render();
+}
+
+/* ---------- 앱 셸 ---------- */
+function navFor(role){
+  if(role==='student') return [
+    {v:'search',    ico:'🔍', label:'강의 검색'},
+    {v:'myEnroll',  ico:'📋', label:'수강신청 내역'},
+    {v:'timetable', ico:'🗓️', label:'내 시간표'},
+  ];
+  if(role==='professor') return [
+    {v:'myCourses', ico:'📚', label:'내 강의'},
+    {v:'createCourse', ico:'➕', label:'강의 등록'},
+    {v:'search',    ico:'🔍', label:'전체 강의'},
+  ];
+  return [
+    {v:'allCourses', ico:'📚', label:'전체 강의'},
+    {v:'accounts',   ico:'👥', label:'계정 관리'},
+    {v:'rooms',      ico:'🏫', label:'강의실 관리'},
+  ];
+}
+
+function renderApp(user){
+  const nav = navFor(user.role);
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <header class="appbar">
+      <div class="brand"><div class="seal">KUK</div><span class="full">학사관리시스템</span></div>
+      <div class="spacer"></div>
+      <a class="about-link" href="about.html">자기소개 →</a>
+      <div class="user-chip">
+        <span class="role-badge" style="background:${roleBadgeBg(user.role)};color:#fff">${ROLE_KO[user.role]}</span>
+        <div><div class="uname">${esc(user.name)}</div><div class="uid mono">${esc(user.id)}</div></div>
+      </div>
+      <button class="btn-logout" id="btnLogout">로그아웃</button>
+    </header>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="side-label">메뉴</div>
+        ${nav.map(n=>`<button class="nav-item ${state.view===n.v?'active':''}" data-view="${n.v}">
+          <span class="ico">${n.ico}</span><span>${n.label}</span></button>`).join('')}
+      </aside>
+      <main class="main" id="main"></main>
+    </div>
+    <div class="footer-note">
+      AI 도구(Claude)를 활용해 제작 · B3팀 «학사관리시스템» 기획서 기반
+      &nbsp;·&nbsp;<button class="reset" id="btnReset">데이터 초기화</button>
+    </div>`;
+
+  document.getElementById('btnLogout').addEventListener('click', ()=>{
+    clearSession(); state={}; toast('로그아웃되었습니다.','info'); render();
+  });
+  document.getElementById('btnReset').addEventListener('click', resetDB);
+  document.querySelector('.sidebar').addEventListener('click', e=>{
+    const b = e.target.closest('.nav-item'); if(!b) return;
+    state.view = b.dataset.view; state.q=''; renderMain();
+  });
+  renderMain();
+}
+
+function renderMain(){
+  const user = currentUser();
+  // keep active nav in sync
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===state.view));
+  const m = document.getElementById('main');
+  switch(state.view){
+    case 'search':       viewCatalog(m, user, false); break;
+    case 'myEnroll':     viewMyEnroll(m, user); break;
+    case 'timetable':    viewTimetable(m, user); break;
+    case 'myCourses':    viewMyCourses(m, user); break;
+    case 'createCourse': viewCreateCourse(m, user); break;
+    case 'allCourses':   viewCatalog(m, user, true); break;
+    case 'accounts':     viewAccounts(m, user); break;
+    case 'rooms':        viewRooms(m, user); break;
+    default:             viewCatalog(m, user, false);
+  }
+}
+
+/* ---------- 강의 검색 / 카탈로그 ---------- */
+function viewCatalog(m, user, adminMode){
+  const isStudent = user.role==='student';
+  const q = (state.q||'').toLowerCase();
+  const dayF = state.dayFilter||'';
+  const availOnly = !!state.availOnly;
+  let list = DB.courses.filter(c=>{
+    const hay = `${c.code} ${c.title} ${profName(c.profId)}`.toLowerCase();
+    if(q && !hay.includes(q)) return false;
+    if(dayF && !c.slots.some(s=>s.day===dayF)) return false;
+    if(availOnly && enrolledCount(c.code) >= c.capacity) return false;
+    return true;
+  });
+  const enrolledCodes = isStudent ? new Set(DB.enrollments.filter(e=>e.sid===user.id).map(e=>e.code)) : new Set();
+
+  m.innerHTML = `
+    <div class="page-head">
+      <h1>${adminMode?'전체 강의':'강의 검색'}</h1>
+      <p>${adminMode?'개설된 모든 강의를 조회하고 관리합니다.':'개설 강의를 검색하고 수강신청합니다. 총 '+DB.courses.length+'개 강의가 개설되어 있습니다.'}</p>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap"><span class="mag">🔍</span>
+        <input type="text" id="searchInput" placeholder="과목명, 강의코드, 교수명으로 검색" value="${esc(state.q||'')}" /></div>
+      <select class="filter" id="dayFilter">
+        <option value="">전체 요일</option>
+        ${DAYS.map(d=>`<option value="${d}" ${dayF===d?'selected':''}>${d}요일</option>`).join('')}
+      </select>
+      ${isStudent?`<label class="chk"><input type="checkbox" id="availOnly" ${availOnly?'checked':''}/> 신청 가능만</label>`:''}
+    </div>
+    ${list.length===0 ? emptyState('🔍','검색 결과가 없습니다','다른 검색어나 필터를 시도해 보세요.') : `
+    <div class="grid">
+      ${list.map(c=>courseCard(c, user, isStudent, enrolledCodes, adminMode)).join('')}
+    </div>`}
+  `;
+
+  const si = document.getElementById('searchInput');
+  si.addEventListener('input', ()=>{ state.q = si.value; const pos=si.selectionStart; renderMain(); const n=document.getElementById('searchInput'); n.focus(); n.setSelectionRange(pos,pos); });
+  document.getElementById('dayFilter').addEventListener('change', e=>{ state.dayFilter=e.target.value; renderMain(); });
+  const ao = document.getElementById('availOnly');
+  if(ao) ao.addEventListener('change', e=>{ state.availOnly=e.target.checked; renderMain(); });
+
+  m.querySelectorAll('[data-enroll]').forEach(b=>b.addEventListener('click', ()=>enroll(b.dataset.enroll)));
+  m.querySelectorAll('[data-drop]').forEach(b=>b.addEventListener('click', ()=>drop(b.dataset.drop)));
+  m.querySelectorAll('[data-del-course]').forEach(b=>b.addEventListener('click', ()=>deleteCourse(b.dataset.delCourse)));
+}
+
+function courseCard(c, user, isStudent, enrolledCodes, adminMode){
+  const taken = enrolledCount(c.code);
+  const ratio = taken / c.capacity;
+  const seatCls = taken>=c.capacity ? 'full' : ratio>=0.8 ? 'warn' : 'ok';
+  const isEnrolled = enrolledCodes.has(c.code);
+  let action = '';
+  if(isStudent){
+    if(isEnrolled) action = `<button class="btn btn-danger btn-sm" data-drop="${c.code}">수강취소</button>`;
+    else if(taken>=c.capacity) action = `<button class="btn btn-sm" disabled>정원마감</button>`;
+    else action = `<button class="btn btn-primary btn-sm" data-enroll="${c.code}">수강신청</button>`;
+  } else if(adminMode){
+    action = `<button class="btn btn-danger btn-sm" data-del-course="${c.code}">삭제</button>`;
+  }
+  return `
+    <div class="card course-card" style="--bc:${colorForCode(c.code)}">
+      <div>
+        <div class="cc-top"><span class="cc-code">${esc(c.code)}</span><span class="credit-tag">${c.credits}학점</span></div>
+        <h3 class="cc-title">${esc(c.title)}</h3>
+      </div>
+      <div class="cc-meta">
+        <div class="row"><span class="k">교수</span><span>${esc(profName(c.profId))}</span></div>
+        <div class="row"><span class="k">강의실</span><span>${esc(c.room)}</span></div>
+        <div class="row"><span class="k">시간</span><span>${esc(slotText(c.slots))}</span></div>
+      </div>
+      <div class="cc-foot">
+        <span class="seats ${seatCls}"><span class="num">${taken}</span> / <span class="num">${c.capacity}</span> 명</span>
+        ${action}
+      </div>
+    </div>`;
+}
+
+/* ---------- 수강신청 / 취소 ---------- */
+function enroll(code){
+  const user = currentUser();
+  const course = DB.courses.find(c=>c.code===code);
+  if(!course) return;
+  if(DB.enrollments.some(e=>e.sid===user.id && e.code===code)){ toast('이미 신청한 강의입니다.','error'); return; }
+  if(enrolledCount(code) >= course.capacity){ toast('정원이 마감되었습니다.','error'); return; }
+  const my = studentCourses(user.id);
+  // 시간 충돌
+  for(const c of my){
+    const hit = slotsOverlap(c.slots, course.slots);
+    if(hit){ const pd=PERIODS.find(x=>x.p===hit.p); toast(`시간 충돌: «${c.title}»와 ${hit.day} ${pd.label}이 겹칩니다.`,'error'); return; }
+  }
+  // 최대 학점
+  const cur = my.reduce((s,c)=>s+c.credits,0);
+  if(cur + course.credits > MAX_CREDITS){ toast(`최대 ${MAX_CREDITS}학점까지 신청할 수 있습니다. (현재 ${cur}학점)`,'error'); return; }
+  DB.enrollments.push({sid:user.id, code}); saveDB();
+  toast(`«${course.title}» 수강신청 완료!`, 'success');
+  renderMain();
+}
+function drop(code){
+  const user = currentUser();
+  const course = DB.courses.find(c=>c.code===code);
+  DB.enrollments = DB.enrollments.filter(e=>!(e.sid===user.id && e.code===code)); saveDB();
+  toast(`«${course?course.title:code}» 수강취소되었습니다.`, 'info');
+  renderMain();
+}
+
+/* ---------- 수강신청 내역 ---------- */
+function viewMyEnroll(m, user){
+  const my = studentCourses(user.id);
+  const credits = my.reduce((s,c)=>s+c.credits,0);
+  m.innerHTML = `
+    <div class="page-head"><h1>수강신청 내역</h1><p>현재 신청한 강의 목록입니다.</p></div>
+    <div class="tt-summary">
+      <div class="stat"><div class="v">${my.length}</div><div class="l">신청 강의</div></div>
+      <div class="stat"><div class="v">${credits}<span style="font-size:14px;color:var(--muted)"> / ${MAX_CREDITS}</span></div><div class="l">신청 학점</div></div>
+    </div>
+    ${my.length===0 ? emptyState('📋','신청한 강의가 없습니다','«강의 검색»에서 듣고 싶은 강의를 신청해 보세요.') : `
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>강의코드</th><th>과목명</th><th>교수</th><th>시간</th><th>강의실</th><th style="text-align:center">학점</th><th></th></tr></thead>
+      <tbody>
+        ${my.map(c=>`<tr>
+          <td class="mono" style="color:var(--brand);font-weight:500">${esc(c.code)}</td>
+          <td style="font-weight:600">${esc(c.title)}</td>
+          <td>${esc(profName(c.profId))}</td>
+          <td>${esc(slotText(c.slots))}</td>
+          <td>${esc(c.room)}</td>
+          <td style="text-align:center" class="mono">${c.credits}</td>
+          <td class="tbl-actions"><button class="btn btn-danger btn-sm" data-drop="${c.code}">수강취소</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`}
+  `;
+  m.querySelectorAll('[data-drop]').forEach(b=>b.addEventListener('click', ()=>drop(b.dataset.drop)));
+}
+
+/* ---------- 시간표 ---------- */
+function viewTimetable(m, user){
+  const my = studentCourses(user.id);
+  const credits = my.reduce((s,c)=>s+c.credits,0);
+  // grid[period][dayIndex] = course
+  const grid = {};
+  for(const c of my) for(const s of c.slots){
+    const di = DAYS.indexOf(s.day); if(di<0) continue;
+    grid[`${s.p}_${di}`] = c;
+  }
+  m.innerHTML = `
+    <div class="page-head"><h1>내 시간표</h1><p>신청한 강의의 주간 시간표입니다.</p></div>
+    <div class="tt-summary">
+      <div class="stat"><div class="v">${my.length}</div><div class="l">강의 수</div></div>
+      <div class="stat"><div class="v">${credits}</div><div class="l">총 학점</div></div>
+    </div>
+    <div class="timetable"><table class="tt">
+      <thead><tr><th class="tt-time"></th>${DAYS.map(d=>`<th>${d}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${PERIODS.map(pd=>`<tr>
+          <td class="tt-time"><span class="p">${pd.label}</span>${pd.start}<br>~${pd.end}</td>
+          ${DAYS.map((d,di)=>{
+            const c = grid[`${pd.p}_${di}`];
+            if(!c) return '<td></td>';
+            return `<td><div class="tt-block" style="--bc:${colorForCode(c.code)};background:${colorForCode(c.code)}14">
+              <div class="t">${esc(c.title)}</div><div class="r">${esc(c.room)}</div></div></td>`;
+          }).join('')}
+        </tr>`).join('')}
+      </tbody>
+    </table></div>
+    ${my.length===0 ? `<p style="text-align:center;color:var(--muted);margin-top:18px">아직 신청한 강의가 없어 시간표가 비어 있습니다.</p>`:''}
+  `;
+}
+
+/* ---------- 교수: 내 강의 ---------- */
+function viewMyCourses(m, user){
+  const mine = DB.courses.filter(c=>c.profId===user.id);
+  m.innerHTML = `
+    <div class="page-head"><h1>내 강의</h1><p>내가 개설한 강의를 관리하고 수강생을 확인합니다.</p></div>
+    ${mine.length===0 ? emptyState('📚','개설한 강의가 없습니다','«강의 등록»에서 새 강의를 개설해 보세요.') : `
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>강의코드</th><th>과목명</th><th>시간</th><th>강의실</th><th style="text-align:center">수강/정원</th><th></th></tr></thead>
+      <tbody>
+        ${mine.map(c=>{ const t=enrolledCount(c.code); const cls=t>=c.capacity?'full':t>=c.capacity*0.8?'warn':'ok'; return `<tr>
+          <td class="mono" style="color:var(--brand);font-weight:500">${esc(c.code)}</td>
+          <td style="font-weight:600">${esc(c.title)}</td>
+          <td>${esc(slotText(c.slots))}</td>
+          <td>${esc(c.room)}</td>
+          <td style="text-align:center"><span class="seats ${cls}"><span class="num">${t}</span>/<span class="num">${c.capacity}</span></span></td>
+          <td class="tbl-actions">
+            <button class="btn btn-sm" data-students="${c.code}">수강생</button>
+            <button class="btn btn-sm" data-edit="${c.code}">수정</button>
+            <button class="btn btn-danger btn-sm" data-del-course="${c.code}">삭제</button>
+          </td>
+        </tr>`;}).join('')}
+      </tbody>
+    </table></div>`}
+  `;
+  m.querySelectorAll('[data-students]').forEach(b=>b.addEventListener('click', ()=>showStudents(b.dataset.students)));
+  m.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click', ()=>openCourseModal(b.dataset.edit)));
+  m.querySelectorAll('[data-del-course]').forEach(b=>b.addEventListener('click', ()=>deleteCourse(b.dataset.delCourse)));
+}
+
+function showStudents(code){
+  const course = DB.courses.find(c=>c.code===code);
+  const studs = DB.enrollments.filter(e=>e.code===code).map(e=>DB.accounts.find(a=>a.id===e.sid)).filter(Boolean);
+  openModal(`«${course.title}» 수강생`, `
+    <p style="color:var(--muted);font-size:13.5px;margin:0 0 14px">총 ${studs.length}명 / 정원 ${course.capacity}명</p>
+    ${studs.length===0 ? `<p style="color:var(--faint);text-align:center;padding:20px 0">아직 수강생이 없습니다.</p>` : `
+    <ul class="stud-list">${studs.map(s=>`<li><span style="font-weight:600">${esc(s.name)}</span><span class="sid">${esc(s.id)}</span></li>`).join('')}</ul>`}
+  `, null, '닫기');
+}
+
+/* ---------- 교수: 강의 등록 / 수정 ---------- */
+function viewCreateCourse(m, user){
+  m.innerHTML = `<div class="page-head"><h1>강의 등록</h1><p>새 강의를 개설합니다. 강의코드는 중복될 수 없으며, 정원은 강의실 수용 인원을 넘을 수 없습니다.</p></div>
+    <div class="card" style="max-width:560px"><div id="formMount"></div></div>`;
+  mountCourseForm(document.getElementById('formMount'), user, null);
+}
+function openCourseModal(code){
+  const user = currentUser();
+  const course = DB.courses.find(c=>c.code===code);
+  openModal(course?'강의 수정':'강의 등록', `<div id="modalFormMount"></div>`, null, null, true);
+  mountCourseForm(document.getElementById('modalFormMount'), user, course, true);
+}
+
+function mountCourseForm(mount, user, editing, inModal){
+  const c = editing || {code:'', title:'', capacity:30, room:DB.rooms[0]?.id||'', credits:3, slots:[{day:'월',p:1}]};
+  let slots = JSON.parse(JSON.stringify(c.slots));
+  function slotRows(){
+    return slots.map((s,i)=>`<div class="slot-row">
+      <select data-slot-day="${i}">${DAYS.map(d=>`<option value="${d}" ${s.day===d?'selected':''}>${d}요일</option>`).join('')}</select>
+      <select data-slot-p="${i}">${PERIODS.map(p=>`<option value="${p.p}" ${s.p===p.p?'selected':''}>${p.label} (${p.start}~${p.end})</option>`).join('')}</select>
+      ${slots.length>1?`<button type="button" class="del" data-slot-del="${i}">×</button>`:'<span style="width:34px"></span>'}
+    </div>`).join('');
+  }
+  function paint(){
+    mount.innerHTML = `
+      <div class="field-row">
+        <div class="field"><label>강의코드</label>
+          <input type="text" id="f_code" class="mono" value="${esc(c.code)}" placeholder="CSE2003" ${editing?'disabled':''}/>
+          ${editing?'<div class="hint">강의코드는 수정할 수 없습니다.</div>':'<div class="hint">예: CSE2003 (영문+숫자)</div>'}</div>
+        <div class="field" style="max-width:110px"><label>학점</label>
+          <select id="f_credits">${[1,2,3].map(n=>`<option value="${n}" ${c.credits===n?'selected':''}>${n}학점</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label>과목명</label><input type="text" id="f_title" value="${esc(c.title)}" placeholder="자료구조"/></div>
+      <div class="field-row">
+        <div class="field"><label>강의실</label>
+          <select id="f_room">${DB.rooms.map(r=>`<option value="${esc(r.id)}" ${c.room===r.id?'selected':''}>${esc(r.id)} (${r.capacity}석)</option>`).join('')}</select></div>
+        <div class="field" style="max-width:120px"><label>정원</label>
+          <input type="number" id="f_cap" min="1" value="${c.capacity}"/></div>
+      </div>
+      <div class="field"><label>강의 시간 <span style="font-weight:500;color:var(--faint)">(요일 + 교시)</span></label>
+        <div class="slot-picker" id="slotPicker">${slotRows()}</div>
+        <button type="button" class="btn btn-sm" id="addSlot" style="margin-top:9px">+ 시간 추가</button></div>
+      <div class="modal-foot">
+        ${inModal?'<button type="button" class="btn" id="cancelForm">취소</button>':''}
+        <button type="button" class="btn btn-primary" id="saveCourse">${editing?'수정 저장':'강의 등록'}</button>
+      </div>`;
+    // bind slot selects
+    mount.querySelectorAll('[data-slot-day]').forEach(sel=>sel.addEventListener('change',e=>{ slots[+e.target.dataset.slotDay].day=e.target.value; }));
+    mount.querySelectorAll('[data-slot-p]').forEach(sel=>sel.addEventListener('change',e=>{ slots[+e.target.dataset.slotP].p=+e.target.value; }));
+    mount.querySelectorAll('[data-slot-del]').forEach(b=>b.addEventListener('click',()=>{ slots.splice(+b.dataset.slotDel,1); paint(); }));
+    mount.querySelector('#addSlot').addEventListener('click',()=>{ slots.push({day:'월',p:1}); paint(); });
+    if(inModal) mount.querySelector('#cancelForm').addEventListener('click', closeModal);
+    mount.querySelector('#saveCourse').addEventListener('click', ()=>submitCourse(editing, slots, mount));
+  }
+  paint();
+}
+
+function submitCourse(editing, slots, mount){
+  const user = currentUser();
+  const code = mount.querySelector('#f_code').value.trim().toUpperCase();
+  const title = mount.querySelector('#f_title').value.trim();
+  const room = mount.querySelector('#f_room').value;
+  const cap = parseInt(mount.querySelector('#f_cap').value,10);
+  const credits = parseInt(mount.querySelector('#f_credits').value,10);
+
+  if(!code || !title){ toast('강의코드와 과목명을 입력해 주세요.','error'); return; }
+  if(!editing && DB.courses.some(c=>c.code===code)){ toast('이미 존재하는 강의코드입니다.','error'); return; }
+  if(!cap || cap<1){ toast('정원을 올바르게 입력해 주세요.','error'); return; }
+  const roomObj = DB.rooms.find(r=>r.id===room);
+  if(roomObj && cap > roomObj.capacity){ toast(`정원이 강의실 수용 인원(${roomObj.capacity}석)을 초과할 수 없습니다.`,'error'); return; }
+  // 중복 슬롯 제거
+  const seen = new Set(); const cleanSlots=[];
+  for(const s of slots){ const k=`${s.day}_${s.p}`; if(!seen.has(k)){ seen.add(k); cleanSlots.push(s); } }
+  // 강의실 충돌 (다른 강의가 같은 강의실·요일·교시 사용)
+  for(const other of DB.courses){
+    if(editing && other.code===editing.code) continue;
+    if(other.room!==room) continue;
+    const hit = slotsOverlap(other.slots, cleanSlots);
+    if(hit){ const pd=PERIODS.find(x=>x.p===hit.p); toast(`강의실 충돌: ${room}은 ${hit.day} ${pd.label}에 «${other.title}»이 사용 중입니다.`,'error'); return; }
+  }
+  // 교수 본인 시간 충돌
+  for(const other of DB.courses){
+    if(other.profId!==user.id) continue;
+    if(editing && other.code===editing.code) continue;
+    const hit = slotsOverlap(other.slots, cleanSlots);
+    if(hit){ const pd=PERIODS.find(x=>x.p===hit.p); toast(`시간 충돌: 본인의 «${other.title}»와 ${hit.day} ${pd.label}이 겹칩니다.`,'error'); return; }
+  }
+
+  if(editing){
+    Object.assign(editing, {title, room, capacity:cap, credits, slots:cleanSlots});
+    saveDB(); toast(`«${title}» 강의가 수정되었습니다.`,'success');
+    if(closeModalIfOpen()) {} 
+    state.view='myCourses'; render();
+  } else {
+    DB.courses.push({code, title, profId:user.id, capacity:cap, room, credits, slots:cleanSlots});
+    saveDB(); toast(`«${title}» 강의가 등록되었습니다.`,'success');
+    state.view='myCourses'; render();
+  }
+}
+
+function deleteCourse(code){
+  const course = DB.courses.find(c=>c.code===code);
+  if(!course) return;
+  const n = enrolledCount(code);
+  const msg = n>0 ? `«${course.title}»에는 수강생 ${n}명이 있습니다. 삭제하면 수강신청도 함께 취소됩니다. 계속할까요?`
+                  : `«${course.title}» 강의를 삭제할까요?`;
+  if(!confirm(msg)) return;
+  DB.courses = DB.courses.filter(c=>c.code!==code);
+  DB.enrollments = DB.enrollments.filter(e=>e.code!==code);
+  saveDB(); toast('강의가 삭제되었습니다.','info'); renderMain();
+}
+
+/* ---------- 관리자: 계정 관리 ---------- */
+function viewAccounts(m, user){
+  const accs = DB.accounts;
+  m.innerHTML = `
+    <div class="page-head"><h1>계정 관리</h1><p>학생·교수·관리자 계정을 관리합니다. 총 ${accs.length}개 계정.</p></div>
+    <div class="toolbar"><div class="spacer" style="flex:1"></div>
+      <button class="btn btn-primary" id="addAcc">+ 계정 추가</button></div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>학번/사번</th><th>이름</th><th>권한</th><th></th></tr></thead>
+      <tbody>${accs.map(a=>`<tr>
+        <td class="mono" style="color:var(--brand);font-weight:500">${esc(a.id)}</td>
+        <td style="font-weight:600">${esc(a.name)}</td>
+        <td><span class="role-badge" style="background:${roleBadgeBg(a.role)};color:${roleBadgeFg(a.role)}">${ROLE_KO[a.role]}</span></td>
+        <td class="tbl-actions">${a.id===user.id?'<span style="color:var(--faint);font-size:12.5px">현재 로그인</span>':`<button class="btn btn-danger btn-sm" data-del-acc="${esc(a.id)}">삭제</button>`}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  document.getElementById('addAcc').addEventListener('click', openAccountModal);
+  m.querySelectorAll('[data-del-acc]').forEach(b=>b.addEventListener('click', ()=>deleteAccount(b.dataset.delAcc)));
+}
+function openAccountModal(){
+  openModal('계정 추가', `
+    <div class="field"><label>권한</label>
+      <select id="a_role"><option value="student">학생</option><option value="professor">교수</option><option value="admin">관리자</option></select></div>
+    <div class="field"><label>학번 / 사번</label><input type="text" id="a_id" class="mono" placeholder="202512345 또는 P0003"/></div>
+    <div class="field"><label>이름</label><input type="text" id="a_name" placeholder="홍길동"/></div>
+    <div class="field"><label>초기 비밀번호</label><input type="text" id="a_pw" value="1234"/></div>
+  `, ()=>{
+    const role=document.getElementById('a_role').value;
+    const id=document.getElementById('a_id').value.trim();
+    const name=document.getElementById('a_name').value.trim();
+    const pw=document.getElementById('a_pw').value;
+    if(!id||!name||!pw){ toast('모든 항목을 입력해 주세요.','error'); return false; }
+    if(DB.accounts.some(a=>a.id===id)){ toast('이미 존재하는 학번/사번입니다.','error'); return false; }
+    DB.accounts.push({id,name,role,password:pw}); saveDB();
+    toast(`${name} 계정이 추가되었습니다.`,'success'); renderMain(); return true;
+  }, '추가');
+}
+function deleteAccount(id){
+  const acc = DB.accounts.find(a=>a.id===id); if(!acc) return;
+  const teaching = DB.courses.filter(c=>c.profId===id).length;
+  let msg = `${acc.name}(${id}) 계정을 삭제할까요?`;
+  if(teaching>0) msg += `\n이 교수가 개설한 강의 ${teaching}개도 함께 삭제됩니다.`;
+  if(!confirm(msg)) return;
+  DB.accounts = DB.accounts.filter(a=>a.id!==id);
+  DB.enrollments = DB.enrollments.filter(e=>e.sid!==id);
+  if(acc.role==='professor'){
+    const codes = DB.courses.filter(c=>c.profId===id).map(c=>c.code);
+    DB.courses = DB.courses.filter(c=>c.profId!==id);
+    DB.enrollments = DB.enrollments.filter(e=>!codes.includes(e.code));
+  }
+  saveDB(); toast('계정이 삭제되었습니다.','info'); renderMain();
+}
+
+/* ---------- 관리자: 강의실 관리 ---------- */
+function viewRooms(m, user){
+  m.innerHTML = `
+    <div class="page-head"><h1>강의실 관리</h1><p>강의 개설에 사용할 강의실(공간) 정보를 관리합니다.</p></div>
+    <div class="toolbar"><div class="spacer" style="flex:1"></div>
+      <button class="btn btn-primary" id="addRoom">+ 강의실 추가</button></div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>강의실</th><th style="text-align:center">수용 인원</th><th style="text-align:center">사용 강의 수</th><th></th></tr></thead>
+      <tbody>${DB.rooms.map(r=>{ const used=DB.courses.filter(c=>c.room===r.id).length; return `<tr>
+        <td style="font-weight:600">${esc(r.id)}</td>
+        <td style="text-align:center" class="mono">${r.capacity}석</td>
+        <td style="text-align:center" class="mono">${used}</td>
+        <td class="tbl-actions"><button class="btn btn-danger btn-sm" data-del-room="${esc(r.id)}" ${used>0?'disabled title="사용 중인 강의실은 삭제할 수 없습니다"':''}>삭제</button></td>
+      </tr>`;}).join('')}</tbody>
+    </table></div>`;
+  document.getElementById('addRoom').addEventListener('click', openRoomModal);
+  m.querySelectorAll('[data-del-room]').forEach(b=>b.addEventListener('click', ()=>{
+    const id=b.dataset.delRoom;
+    if(!confirm(`${id} 강의실을 삭제할까요?`)) return;
+    DB.rooms = DB.rooms.filter(r=>r.id!==id); saveDB(); toast('강의실이 삭제되었습니다.','info'); renderMain();
+  }));
+}
+function openRoomModal(){
+  openModal('강의실 추가', `
+    <div class="field"><label>강의실 이름</label><input type="text" id="r_id" placeholder="공학관 401"/></div>
+    <div class="field"><label>수용 인원</label><input type="number" id="r_cap" min="1" value="40"/></div>
+  `, ()=>{
+    const id=document.getElementById('r_id').value.trim();
+    const cap=parseInt(document.getElementById('r_cap').value,10);
+    if(!id||!cap||cap<1){ toast('강의실 이름과 수용 인원을 입력해 주세요.','error'); return false; }
+    if(DB.rooms.some(r=>r.id===id)){ toast('이미 존재하는 강의실입니다.','error'); return false; }
+    DB.rooms.push({id,capacity:cap}); saveDB(); toast(`${id} 강의실이 추가되었습니다.`,'success'); renderMain(); return true;
+  }, '추가');
+}
+
+/* ---------- 공용 컴포넌트 ---------- */
+function emptyState(ico, title, sub){
+  return `<div class="empty"><div class="ico">${ico}</div><h3>${esc(title)}</h3><p>${esc(sub)}</p></div>`;
+}
+
+let modalOnConfirm = null;
+function openModal(title, bodyHtml, onConfirm, confirmLabel, noFoot){
+  modalOnConfirm = onConfirm || null;
+  let host = document.getElementById('modalHost');
+  if(!host){ host = document.createElement('div'); host.id='modalHost'; document.body.appendChild(host); }
+  const footHtml = noFoot ? '' : `<div class="modal-foot">
+      <button class="btn" id="modalCancel">취소</button>
+      ${onConfirm?`<button class="btn btn-primary" id="modalOk">${confirmLabel||'확인'}</button>`:`<button class="btn btn-primary" id="modalCancel2">${confirmLabel||'닫기'}</button>`}
+    </div>`;
+  host.innerHTML = `<div class="modal-overlay" id="modalOverlay"><div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h2>${esc(title)}</h2><button class="x" id="modalX">×</button></div>
+    <div class="modal-body">${bodyHtml}${footHtml}</div></div></div>`;
+  const ov = document.getElementById('modalOverlay');
+  requestAnimationFrame(()=>ov.classList.add('show'));
+  document.getElementById('modalX').addEventListener('click', closeModal);
+  ov.addEventListener('click', e=>{ if(e.target===ov) closeModal(); });
+  const c1=document.getElementById('modalCancel'); if(c1) c1.addEventListener('click', closeModal);
+  const c2=document.getElementById('modalCancel2'); if(c2) c2.addEventListener('click', closeModal);
+  const ok=document.getElementById('modalOk'); if(ok) ok.addEventListener('click', ()=>{ if(modalOnConfirm && modalOnConfirm()!==false) closeModal(); });
+  document.addEventListener('keydown', escClose);
+}
+function escClose(e){ if(e.key==='Escape') closeModal(); }
+function closeModal(){
+  const ov = document.getElementById('modalOverlay'); if(!ov) return;
+  ov.classList.remove('show');
+  document.removeEventListener('keydown', escClose);
+  setTimeout(()=>{ const h=document.getElementById('modalHost'); if(h) h.innerHTML=''; }, 180);
+}
+function closeModalIfOpen(){ if(document.getElementById('modalOverlay')){ closeModal(); return true; } return false; }
+
+/* ---- 시작 ---- */
+render();
+</script>
+</body>
+</html>
